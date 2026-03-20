@@ -7,6 +7,10 @@
     "dish": 1,
     "cook": 2,
     "clean": 3,
-    "laundry": 1
+    "laundry": 1,
+    "pet": 1,
+    "water": 1,
+    "tidy": 1,
+    "errand": 1
   }
 }
