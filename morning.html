@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あさのじゅんび</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+      background: #E3F2FD;
+      color: #333;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .back-btn {
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 12px;
+      min-width: 48px;
+      min-height: 48px;
+    }
+    .back-btn:active { background: #BBDEFB; }
+    .header h1 {
+      font-size: 28px;
+      color: #1E88E5;
+    }
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .checklist li {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: opacity 0.2s;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .checklist li.done {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+    .checklist li input[type="checkbox"] {
+      width: 28px;
+      height: 28px;
+      accent-color: #1E88E5;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .complete-msg {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 28px;
+      display: none;
+    }
+    .complete-msg.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button class="back-btn" onclick="location.href='index.html'">◀ もどる</button>
+    <h1>☀️ あさのじゅんび</h1>
+  </div>
+  <ul class="checklist" id="checklist"></ul>
+  <div class="complete-msg" id="complete-msg">🎉 じゅんびかんりょう！</div>
+
+  <script>
+    const TASKS = [
+      'ごはんをたべる',
+      'かおをあらう',
+      'はをみがく',
+      'きがえをする',
+      'ローションをぬる',
+      'サンスクリーンをぬる',
+      'リュックのなかみをいれる',
+    ];
+
+    const STORAGE_KEY = 'morning_checklist';
+
+    function getTodayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && saved.date === getTodayStr()) {
+          return saved.checked;
+        }
+      } catch (e) {}
+      return new Array(TASKS.length).fill(false);
+    }
+
+    function saveState(checked) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        date: getTodayStr(),
+        checked: checked,
+      }));
+    }
+
+    function render() {
+      const checked = loadState();
+      const list = document.getElementById('checklist');
+      list.innerHTML = '';
+
+      TASKS.forEach((task, i) => {
+        const li = document.createElement('li');
+        if (checked[i]) li.classList.add('done');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = checked[i];
+        cb.addEventListener('change', () => {
+          checked[i] = cb.checked;
+          saveState(checked);
+          li.classList.toggle('done', cb.checked);
+          updateComplete(checked);
+        });
+
+        li.addEventListener('click', (e) => {
+          if (e.target !== cb) {
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change'));
+          }
+        });
+
+        const label = document.createElement('span');
+        label.textContent = task;
+
+        li.appendChild(cb);
+        li.appendChild(label);
+        list.appendChild(li);
+      });
+
+      updateComplete(checked);
+    }
+
+    function updateComplete(checked) {
+      const msg = document.getElementById('complete-msg');
+      msg.classList.toggle('show', checked.every(Boolean));
+    }
+
+    // 日付が変わったらリセット
+    let lastDate = getTodayStr();
+    setInterval(() => {
+      const now = getTodayStr();
+      if (now !== lastDate) {
+        lastDate = now;
+        localStorage.removeItem(STORAGE_KEY);
+        render();
+      }
+    }, 30000);
+
+    render();
+  </script>
+</body>
+</html>

@@ -163,7 +163,7 @@
 </head>
 <body>
   <div class="header">
-    <button class="back-btn" onclick="location.href='index.html'">◀ もどる</button>
+    <button class="back-btn" onclick="location.href='calendar.html'">◀ もどる</button>
     <h1>🌟 おてつだい 🌟</h1>
   </div>
   <div class="date-label" id="date-label"></div>
@@ -175,7 +175,7 @@
   <script>
     const params = new URLSearchParams(location.search);
     const dateStr = params.get('date');
-    if (!dateStr) location.href = 'index.html';
+    if (!dateStr) location.href = 'calendar.html';
 
     const yearMonth = dateStr.substring(0, 7);
     let monthData = {};
